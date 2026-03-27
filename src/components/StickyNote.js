@@ -4,8 +4,6 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || '';
-
 // Sanitize input — strip HTML tags, limit length
 function sanitize(text, maxLen = 500) {
   return text.replace(/<[^>]*>/g, '').slice(0, maxLen);
@@ -40,7 +38,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     return () => clearTimeout(timeout);
   }, [content, isEditing, note.id, onBroadcast]);
 
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = user?.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '');
   const isOwner = user?.id === note.created_by || isAdmin;
 
   // Auto-focus textarea when editing
