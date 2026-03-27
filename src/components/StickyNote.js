@@ -4,6 +4,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || '';
+
 // Sanitize input — strip HTML tags, limit length
 function sanitize(text, maxLen = 500) {
   return text.replace(/<[^>]*>/g, '').slice(0, maxLen);
