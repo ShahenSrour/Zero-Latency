@@ -851,3 +851,38 @@ html, body {
   background: var(--bg-glass-hover);
   color: var(--text-primary);
 }
+
+/* ============================================================
+   TOAST NOTIFICATION
+   ============================================================ */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(255, 107, 107, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--error);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(255, 107, 107, 0.2);
+  z-index: 1000;
+  animation: toastSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), toastFadeOut 0.3s ease-in 2.7s forwards;
+}
+
+@keyframes toastSlideUp {
+  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.9); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes toastFadeOut {
+  0% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}

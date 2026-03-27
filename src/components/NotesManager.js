@@ -35,6 +35,7 @@ function sanitize(text, maxLen = 500) {
 export default function NotesManager() {
   const { user } = useAuth();
   const [notes, setNotes] = useState([]);
+  const [toastMessage, setToastMessage] = useState('');
   const channelRef = useRef(null);
 
   // Fetch initial notes
@@ -141,6 +142,16 @@ export default function NotesManager() {
   // Create a new note
   const handleDropNote = async () => {
     if (!user) return; // Only logged-in users can create notes
+
+    const isAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '');
+    const myNotesCount = notes.filter((n) => n.created_by === user.id).length;
+    
+    if (!isAdmin && myNotesCount >= 3) {
+      setToastMessage("You have reached the limit of 3 active notes. Please delete an existing note first.");
+      setTimeout(() => setToastMessage(''), 3000);
+      return;
+    }
+
     const pos = randomPosition();
     const color = randomColor();
 
@@ -202,6 +213,18 @@ export default function NotesManager() {
           </svg>
           <span className="fab-label">Drop a Note</span>
         </button>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>{toastMessage}</span>
+        </div>
       )}
     </>
   );
