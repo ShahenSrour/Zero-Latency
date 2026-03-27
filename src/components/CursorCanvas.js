@@ -34,14 +34,18 @@ export default function CursorCanvas({ children }) {
   useEffect(() => {
     if (!supabase) return;
 
-    const channel = supabase.channel('room:canvas', {
+    const channel = supabase.channel('roomContent', {
       config: { presence: { key: myId } },
     });
+
+    console.log('Subscribing to presence for:', myId);
 
     channel
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
+        console.log('Presence sync:', state);
         const newCursors = {};
+        
         Object.entries(state).forEach(([key, presences]) => {
           if (key !== myId && presences.length > 0) {
             const p = presences[0];
@@ -55,20 +59,29 @@ export default function CursorCanvas({ children }) {
         });
         setCursors(newCursors);
       })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('User joined:', key, newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('User left:', key, leftPresences);
+      })
       .subscribe(async (status) => {
+        console.log('Presence status:', status);
         if (status === 'SUBSCRIBED') {
-          await channel.track({
+          const tracked = await channel.track({
             x: 0,
             y: 0,
             email: myEmail,
             color: userColor(myId),
           });
+          console.log('Presence track status:', tracked);
         }
       });
 
     channelRef.current = channel;
 
     return () => {
+      console.log('Unsubscribing from presence');
       channel.unsubscribe();
     };
   }, [myId, myEmail]);

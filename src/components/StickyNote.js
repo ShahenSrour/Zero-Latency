@@ -38,7 +38,8 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     return () => clearTimeout(timeout);
   }, [content, isEditing, note.id, onBroadcast]);
 
-  const isOwner = user?.id === note.created_by;
+  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isOwner = user?.id === note.created_by || isAdmin;
 
   // Auto-focus textarea when editing
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     }
   }, [isEditing]);
 
-  // Drag start
+  // Drag start (Mouse)
   const handleMouseDown = useCallback(
     (e) => {
       if (!isOwner || isEditing) return;
@@ -69,23 +70,49 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     [isOwner, isEditing]
   );
 
+  // Drag start (Touch)
+  const handleTouchStart = useCallback(
+    (e) => {
+      if (!isOwner || isEditing) return;
+      if (e.target.closest('.note-delete-btn') || e.target.closest('textarea')) return;
+
+      // Don't preventDefault here as it might block scrolling if not dragging
+      const touch = e.touches[0];
+      setIsDragging(true);
+
+      const rect = noteRef.current.getBoundingClientRect();
+      dragOffset.current = {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top,
+      };
+    },
+    [isOwner, isEditing]
+  );
+
   // Drag move & end (window-level listeners)
   useEffect(() => {
     if (!isDragging) return;
 
-    const handleMouseMove = (e) => {
+    const handleMove = (x, y) => {
       const canvas = noteRef.current?.closest('.cursor-canvas');
       if (!canvas) return;
 
       const canvasRect = canvas.getBoundingClientRect();
-      const newX = Math.max(0, e.clientX - canvasRect.left - dragOffset.current.x);
-      const newY = Math.max(0, e.clientY - canvasRect.top - dragOffset.current.y);
+      const newX = Math.max(0, x - canvasRect.left - dragOffset.current.x);
+      const newY = Math.max(0, y - canvasRect.top - dragOffset.current.y);
 
       noteRef.current.style.left = `${newX}px`;
       noteRef.current.style.top = `${newY}px`;
     };
 
-    const handleMouseUp = async () => {
+    const handleMouseMove = (e) => handleMove(e.clientX, e.clientY);
+    const handleTouchMove = (e) => {
+      if (e.cancelable) e.preventDefault();
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    };
+
+    const handleEnd = async () => {
       setIsDragging(false);
 
       // Persist new position
@@ -103,11 +130,15 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleEnd);
     };
   }, [isDragging, note, onUpdate]);
 
@@ -157,6 +188,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
         '--note-color': note.color,
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       onDoubleClick={() => {
         if (isOwner) setIsEditing(true);
       }}
