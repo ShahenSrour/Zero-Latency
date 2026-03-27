@@ -122,10 +122,11 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
       onUpdate({ ...note, x: left, y: top });
 
       if (supabase) {
-        await supabase
+        const { error } = await supabase
           .from('notes')
           .update({ x: left, y: top })
           .eq('id', note.id);
+        if (error) console.error('Failed to update note position:', error);
       }
     };
 
@@ -141,7 +142,6 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
       window.removeEventListener('touchend', handleEnd);
     };
   }, [isDragging, note, onUpdate]);
-
   // Save content on blur
   const handleBlur = async () => {
     setIsEditing(false);
@@ -151,10 +151,11 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
     if (sanitized !== note.content) {
       onUpdate({ ...note, content: sanitized });
       if (supabase) {
-        await supabase
+        const { error } = await supabase
           .from('notes')
           .update({ content: sanitized })
           .eq('id', note.id);
+        if (error) console.error('Failed to update note content:', error);
       }
     }
   };
@@ -163,7 +164,8 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
   const handleDelete = async () => {
     onDelete(note.id);
     if (supabase) {
-      await supabase.from('notes').delete().eq('id', note.id);
+      const { error } = await supabase.from('notes').delete().eq('id', note.id);
+      if (error) console.error('Failed to delete note:', error);
     }
   };
 
