@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
 import LoginPage from '@/components/LoginPage';
@@ -54,11 +54,41 @@ function WorkspaceContent() {
   const { user, loading, signOut } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
 
+  const containerRef = useRef(null);
+  const [isPanning, setIsPanning] = useState(false);
+  const panStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
+  const handlePanStart = (e) => {
+    if (e.target.closest('.sticky-note') || e.target.closest('.note-finder') || e.target.closest('.fab')) return;
+    if (e.button !== 0 && e.button !== 1) return; // Only left/middle click
+    
+    setIsPanning(true);
+    panStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      scrollLeft: containerRef.current?.scrollLeft || 0,
+      scrollTop: containerRef.current?.scrollTop || 0,
+    };
+  };
+
+  const handlePanMove = (e) => {
+    if (!isPanning || !containerRef.current) return;
+    e.preventDefault();
+    const dx = e.clientX - panStart.current.x;
+    const dy = e.clientY - panStart.current.y;
+    containerRef.current.scrollLeft = panStart.current.scrollLeft - dx;
+    containerRef.current.scrollTop = panStart.current.scrollTop - dy;
+  };
+
+  const handlePanEnd = () => {
+    setIsPanning(false);
+  };
+
   // Center the scroll on mount or when notes are first loaded
   useEffect(() => {
     // Only run this if we are not loading and not showing the login page
     if (!loading && (!showLogin || user)) {
-      const container = document.querySelector('.workspace-canvas-container');
+      const container = containerRef.current || document.querySelector('.workspace-canvas-container');
       if (!container) return;
 
       const performScroll = (targetX, targetY) => {
@@ -163,7 +193,14 @@ function WorkspaceContent() {
         </header>
 
       {/* Scrollable Container for the expanded workspace */}
-      <div className="workspace-canvas-container">
+      <div 
+        className={`workspace-canvas-container ${isPanning ? 'is-panning' : ''}`}
+        ref={containerRef}
+        onMouseDown={handlePanStart}
+        onMouseMove={handlePanMove}
+        onMouseUp={handlePanEnd}
+        onMouseLeave={handlePanEnd}
+      >
         <CursorCanvas>
           <NotesManager />
         </CursorCanvas>

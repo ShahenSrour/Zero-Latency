@@ -34,7 +34,7 @@ function sanitize(text, maxLen = 500) {
   return String(text || '').replace(/<[^>]*>/g, '').slice(0, maxLen);
 }
 
-function NoteFinder({ notes, setClosestNoteId, setFoundNoteId }) {
+function NoteFinder({ notes, setClosestNoteId, setFoundNoteId, currentUserId }) {
   const [closest, setClosest] = useState(null);
   const rafRef = useRef(null);
   const persistenceTimeoutRef = useRef(null);
@@ -61,7 +61,11 @@ function NoteFinder({ notes, setClosestNoteId, setFoundNoteId }) {
         let nearest = null;
         let anyInView = false;
 
-        notes.forEach(n => {
+        // Prioritize finding other people's notes to prevent isolated "hives"
+        const otherNotes = notes.filter(n => n.created_by !== currentUserId);
+        const targetNotes = otherNotes.length > 0 ? otherNotes : notes;
+
+        targetNotes.forEach(n => {
           const dx = n.x - centerX;
           const dy = n.y - centerY;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -116,7 +120,7 @@ function NoteFinder({ notes, setClosestNoteId, setFoundNoteId }) {
       cancelAnimationFrame(rafRef.current);
       if (persistenceTimeoutRef.current) clearTimeout(persistenceTimeoutRef.current);
     };
-  }, [notes, setClosestNoteId]);
+  }, [notes, setClosestNoteId, currentUserId]);
 
   if (!closest) return null;
 
@@ -361,7 +365,7 @@ export default function NotesManager() {
         </div>
       )}
       {/* Note Finder HUD */}
-      <NoteFinder notes={notes} setClosestNoteId={setClosestNoteId} setFoundNoteId={setFoundNoteId} />
+      <NoteFinder notes={notes} setClosestNoteId={setClosestNoteId} setFoundNoteId={setFoundNoteId} currentUserId={user?.id} />
     </>
   );
 }

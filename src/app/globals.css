@@ -397,10 +397,15 @@ html, body {
   /* Hide scrollbars but keep functionality */
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
 }
 
 .workspace-canvas-container::-webkit-scrollbar {
   display: none;
+}
+
+.workspace-canvas-container.is-panning {
+  cursor: grabbing;
 }
 
 .topbar {
