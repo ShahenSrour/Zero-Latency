@@ -22,9 +22,10 @@ function randomColor() {
 
 function randomPosition() {
   // Spawn notes near the center of the 3000x3000px board with a wider spread
+  // Must use Math.round to pass valid integers to the Supabase integer columns
   return {
-    x: 1500 - 130 + (Math.random() * 800 - 400),
-    y: 1500 - 80 + (Math.random() * 600 - 300),
+    x: Math.round(1500 - 130 + (Math.random() * 800 - 400)),
+    y: Math.round(1500 - 80 + (Math.random() * 600 - 300)),
   };
 }
 
