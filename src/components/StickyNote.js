@@ -9,7 +9,7 @@ function sanitize(text, maxLen = 500) {
   return text.replace(/<[^>]*>/g, '').slice(0, maxLen);
 }
 
-export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
+export default function StickyNote({ note, onUpdate, onDelete, onBroadcast, isFound }) {
   const { user } = useAuth();
   const [content, setContent] = useState(note.content);
   const lastBroadcast = useRef(note.content);
@@ -183,8 +183,9 @@ export default function StickyNote({ note, onUpdate, onDelete, onBroadcast }) {
   return (
     <div
       ref={noteRef}
-      className={`sticky-note ${isDragging ? 'dragging' : ''} ${isOwner ? 'is-owner' : ''}`}
+      className={`sticky-note ${isDragging ? 'dragging' : ''} ${isOwner ? 'is-owner' : ''} ${isFound ? 'is-found' : ''}`}
       style={{
+        position: 'absolute',
         left: `${note.x}px`,
         top: `${note.y}px`,
         '--note-color': note.color,

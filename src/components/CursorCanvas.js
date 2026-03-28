@@ -144,11 +144,7 @@ export default function CursorCanvas({ children }) {
         </div>
       ))}
 
-      {/* Online indicator */}
-      <div className="online-indicator">
-        <span className="online-dot" />
-        {onlineCount} online
-      </div>
+
 
       {children}
     </div>

@@ -55,13 +55,13 @@ export default function LoginPage() {
         <div className="login-header">
           <div className="login-logo">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#logo-grad)" />
-              <path d="M16 20L24 14L32 20V32L24 38L16 32V20Z" fill="white" fillOpacity="0.9" />
-              <path d="M24 14V38M16 20L32 32M32 20L16 32" stroke="white" strokeOpacity="0.3" strokeWidth="1" />
+              <rect x="4" y="4" width="40" height="40" rx="14" fill="url(#logo-grad)" />
+              <path d="M18 16L28 12L34 22L24 26L18 16Z" fill="white" fillOpacity="0.8" />
+              <path d="M14 26L24 22L30 32L20 36L14 26Z" fill="white" fillOpacity="0.95" />
               <defs>
                 <linearGradient id="logo-grad" x1="4" y1="4" x2="44" y2="44">
-                  <stop stopColor="#667eea" />
-                  <stop offset="1" stopColor="#764ba2" />
+                  <stop stopColor="#4F46E5" />
+                  <stop offset="1" stopColor="#EC4899" />
                 </linearGradient>
               </defs>
             </svg>

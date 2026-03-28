@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#topbar-grad)" />
+  <path d="M18 16L28 12L34 22L24 26L18 16Z" fill="white" fill-opacity="0.8" />
+  <path d="M14 26L24 22L30 32L20 36L14 26Z" fill="white" fill-opacity="0.95" />
+  <defs>
+    <linearGradient id="topbar-grad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#4F46E5" />
+      <stop offset="1" stopColor="#EC4899" />
+    </linearGradient>
+  </defs>
+</svg>
