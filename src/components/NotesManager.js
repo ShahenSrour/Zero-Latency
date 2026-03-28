@@ -284,6 +284,22 @@ export default function NotesManager() {
     const optimistic = { ...newNote, id: tempId, created_at: new Date().toISOString() };
     setNotes((prev) => [...prev, optimistic]);
 
+    // Visually highlight the newly created note for feedback
+    setFoundNoteId(tempId);
+    setTimeout(() => setFoundNoteId(null), 1500);
+
+    // Pan the camera gracefully to the new note
+    setTimeout(() => {
+      const container = document.querySelector('.workspace-canvas-container');
+      if (container) {
+        container.scrollTo({
+          left: pos.x - container.clientWidth / 2 + 130,
+          top: pos.y - container.clientHeight / 2 + 80,
+          behavior: 'smooth'
+        });
+      }
+    }, 50);
+
     if (!supabase) return;
     const { data, error } = await supabase
       .from('notes')
@@ -296,6 +312,8 @@ export default function NotesManager() {
       setNotes((prev) =>
         prev.map((n) => (n.id === tempId ? data : n))
       );
+      // Transfer the active aura highlight to the real database ID
+      setFoundNoteId((current) => current === tempId ? data.id : current);
     } else if (error) {
       // Rollback
       setNotes((prev) => prev.filter((n) => n.id !== tempId));
